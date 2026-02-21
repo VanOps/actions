@@ -21,7 +21,7 @@ jobs:
         uses: aboutcode-org/scancode-action@beta
         with:
           pipelines: "scan_codebase"
-          output-formats: "json,spdx,cyclonedx"
+          output-formats: "json"
           check-compliance: true
           compliance-fail-level: "ERROR"
           inputs-path: "workflow-failure-analyzer .github LICENSE"
