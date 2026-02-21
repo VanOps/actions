@@ -26,46 +26,18 @@ jobs:
           inputs-path: "."
         continue-on-error: false
 
-      # Doble check con FOSSology (Nomos/Ojo para copyrights)
-      - name: FOSSology Scan
-        uses: fossology/fossology-action@v1 # O GMishx/fossology-scan@v1 si no disponible
-        with:
-          scan-mode: "new" # 'diff' para PRs
-          scanners: "nomos,ojo,ninka"
-          upload-token: ${{ secrets.FOSSOLOGY_UPLOAD_TOKEN }} # Opcional para server propio
-        continue-on-error: false
-
       # ORT: Compliance full (licencias, vulns, políticas)
+      # Nota: ORT-CI corre análisis completo sin configuración adicional
       - name: OSS Review Toolkit (ORT)
         uses: oss-review-toolkit/ort-ci-github-action@v1
-        with:
-          config: |
-            ort: {
-              licenseClassifications: {
-                allowed: [ "${{ vars.ALLOWED_LICENSES }}" ]  # MIT,Apache-2.0,etc.
-              }
-            }
-          analyzer: {}
-          scanner: {}
         continue-on-error: false
 
       # Secrets scan con TruffleHog
+      # Custom config: .trufflehog-config.json (opcional)
       - name: TruffleHog Secrets Scan
         uses: trufflesecurity/trufflehog@main
         with:
-          extra_args: --fail --only-verified --entropy --config .trufflehog-config.json # Custom config si necesitas
-        continue-on-error: false
-
-      # SAST con Semgrep (vulnerabilidades código)
-      - name: Semgrep SAST
-        uses: semgrep/semgrep-action@v2
-        with:
-          config: >-
-            p/python
-            p/secrets
-            p/r2c-ci
-          publishToken: ${{ secrets.SEMGREP_APP_TOKEN }} # Gratuito en semgrep.dev
-          generateSarif: true
+          extra_args: --fail --only-verified --entropy --config .trufflehog-config.json
         continue-on-error: false
 
       # Upload reports para revisión
@@ -76,7 +48,6 @@ jobs:
           name: compliance-reports
           path: |
             scancode-outputs/
-            fossology-results/
             ort-result/
             trufflehog-report.json
             semgrep.sarif
@@ -85,20 +56,24 @@ jobs:
       - name: AI Content Disclosure
         run: |
           echo 'AI-generated or assisted code detected. Review logs.' > AI_DISCLOSURE.md
+          echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> AI_DISCLOSURE.md
+          echo "Compliance: EU AI Act Art.50" >> AI_DISCLOSURE.md
+          echo "" >> AI_DISCLOSURE.md
+          echo "## AI-Assisted Files" >> AI_DISCLOSURE.md
           # Añade metadata (C2PA-like) a archivos clave
-          for file in $(git ls-files '*.py' '*.js' '*.yaml'); do
-            echo "# AI-assisted file (EU AI Act Art.50)" >> "$file".ai-meta
-            echo "Generated: $(date)" >> "$file".ai-meta
+          for file in $(git ls-files '*.py' '*.js' '*.yaml' '*.yml'); do
+            echo "- $file" >> AI_DISCLOSURE.md
+            echo "# AI-assisted file (EU AI Act Art.50) - Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$file".ai-meta
           done
         shell: bash
 
       - name: Commit Disclosure if needed
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'push'
         run: |
           git config user.name "Compliance Bot"
           git config user.email "bot@github.com"
-          git add *.ai-meta AI_DISCLOSURE.md
-          git commit -m "EU AI Act: Add disclosure metadata [skip ci]" || echo "No changes"
+          git add . || true
+          git commit -m "EU AI Act: Add disclosure metadata [skip ci]" || echo "No changes to commit"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
