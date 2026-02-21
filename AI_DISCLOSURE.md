@@ -1,8 +1,8 @@
 # AI Content Disclosure (EU AI Act Art.50)
 
-**Last Updated**: 2026-02-21T19:46:09Z
-**Commit**: 53696140c5b1320586d13d3cb08a09f8f0d03f1f
-**Workflow Run**: 22263161061
+**Last Updated**: 2026-02-21T19:50:04Z
+**Commit**: f130e5f27191319f5b8f8cdff947577f469895c0
+**Workflow Run**: 22263217906
 
 ## Purpose
 This repository uses AI-assisted code generation for development and maintenance tasks.
@@ -12,7 +12,7 @@ transparency in AI-generated content.
 ## Recent Changes (Last Commit)
 ### Modified files with potential AI assistance:
 
-- .scanoss/results.json
+- .github/workflows/ai-disclosure.yaml
 
 ## Repository Overview
 
