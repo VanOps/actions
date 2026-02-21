@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main, master]
 
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+
 concurrency:
   group: "scan-gen-code-compliance"
   cancel-in-progress: true
