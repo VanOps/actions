@@ -1,0 +1,146 @@
+name: CI - Test Action
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "workflow-failure-analyzer/**"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "workflow-failure-analyzer/**"
+  workflow_dispatch:
+
+concurrency:
+  group: "workflow-failure-analyzer-ci"
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: Test and Build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./workflow-failure-analyzer
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build action
+        run: npm run build
+
+      - name: Check dist exists
+        run: |
+          if [ ! -f "dist/index.js" ]; then
+            echo "Error: dist/index.js no fue generado"
+            exit 1
+          fi
+          echo "✅ Build exitoso - dist/index.js generado"
+
+      - name: Verify action.yml
+        run: |
+          if [ ! -f "action.yml" ]; then
+            echo "Error: action.yml no encontrado"
+            exit 1
+          fi
+          echo "✅ action.yml existe"
+
+      - name: Commit dist/
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f dist/
+          git diff --staged --quiet && echo "No changes to dist/" && exit 0
+          git commit -m "chore: build dist/"
+          git push
+
+  # Test del action en un escenario simulado
+  integration-test:
+    name: Integration Test
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build action
+        working-directory: ./workflow-failure-analyzer
+        run: |
+          npm install
+          npm run build
+
+      # Crear un workflow fallido simulado para probar el action
+      - name: Simulate failed step
+        id: fail_step
+        continue-on-error: true
+        run: |
+          echo "Simulando un step que falla..."
+          exit 1
+
+      # Probar el action (requerirá token de GitHub)
+      - name: Test Workflow Failure Analyzer
+        if: always()
+        uses: ./workflow-failure-analyzer
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-remediate: "false"
+        continue-on-error: true
+
+      - name: Check action outputs
+        if: always()
+        run: |
+          echo "Test del action completado"
+          echo "En un escenario real, el action analizaría el fallo anterior"
+
+  # Lint y verificación de calidad de código
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./workflow-failure-analyzer
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check for syntax errors
+        run: node -c src/index.js
+
+      - name: Verify package.json structure
+        run: |
+          node -e "const pkg = require('./package.json'); \
+            if (!pkg.main || !pkg.scripts || !pkg.scripts.build) { \
+              console.error('package.json falta campos requeridos'); \
+              process.exit(1); \
+            } \
+            console.log('✅ package.json válido');"

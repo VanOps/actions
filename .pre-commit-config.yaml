@@ -1,0 +1,44 @@
+repos:
+  # Secrets: TruffleHog (LOCAL hook, git scan)
+  # - repo: local
+  #  hooks:
+  #     - id: trufflehog
+  #       name: TruffleHog Secrets
+  #       description: Detect secrets in git changes
+  #       entry: trufflehog git file://. --since-commit HEAD --only-verified --fail
+  #       language: system
+  #       stages: [pre-commit, pre-push]
+  #       pass_filenames: false
+
+  # # SAST: Semgrep
+  # - repo: https://github.com/semgrep/semgrep
+  #   rev: v1.89.0 # O ejecuta autoupdate para latest
+  #   hooks:
+  #     - id: semgrep
+  #       args: [--config=auto, --quiet]
+
+  #Snippets/licencias: ScanOSS
+  - repo: https://github.com/scanoss/pre-commit-hooks
+    rev: v0.4.0
+    hooks:
+      - id: scanoss-check-undeclared-code
+
+  # # Deps vulns: OSV
+  # - repo: https://github.com/google/osv-scanner
+  #   rev: v2.3.3
+  #   hooks:
+  #     - id: osv-scanner
+
+  # Code quality: Ruff
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.2
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # JS/YAML: Prettier
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: "v4.0.0-alpha.8"
+    hooks:
+      - id: prettier

@@ -1,0 +1,31 @@
+name: "AI Workflow Failure Analyzer"
+description: "Analiza steps fallidos en workflows usando MCP/Copilot y sugiere soluciones"
+
+inputs:
+  github-token:
+    description: "GitHub token con permisos para leer workflows, crear comentarios y commits"
+    required: true
+  mcp-url:
+    description: "URL del GitHub MCP Server (ej: http://localhost:3000 o endpoint remoto)"
+    required: false
+    default: "http://localhost:3000"
+  copilot-token:
+    description: "[OBSOLETO - ya no es necesario] El fallback de GitHub Models ahora usa github-token automáticamente"
+    required: false
+    default: ""
+  auto-remediate:
+    description: "Si true, intenta auto-corregir archivos .github/workflows/*.yml via commit"
+    required: false
+    default: "false"
+
+outputs:
+  analysis:
+    description: "Resultado del análisis IA"
+  provider:
+    description: "Proveedor usado (mcp o models)"
+  remediation-pr:
+    description: "URL del PR de remediación (si aplica)"
+
+runs:
+  using: "node20"
+  main: "dist/index.js"
