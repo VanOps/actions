@@ -1,4 +1,4 @@
-name: Máxima Garantía Compliance Scan
+name: AI Compliance Scan
 
 on:
   push:
@@ -7,9 +7,8 @@ on:
     branches: [main, master]
 
 permissions:
-  contents: write
+  contents: read
   actions: read
-  id-token: write
 
 concurrency:
   group: "scan-gen-code-compliance"
@@ -23,8 +22,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Historia completa para scans
-          token: ${{ secrets.GITHUB_TOKEN }}
-          persist-credentials: true # Necesario para push de disclosures
 
       # Licencias/Copyrights con ScanCode (rule-based, snippets)
       # Nota: Escanea directorios específicos para evitar conflictos con directorios temporales
@@ -62,30 +59,26 @@ jobs:
             scancode-outputs/
             ort-result/
             trufflehog-report.json
-            semgrep.sarif
+          retention-days: 30
 
-      # Step AI Disclosure (EU AI Act compliance)
-      - name: AI Content Disclosure
+      # Report to GitHub Actions Summary
+      - name: Generate Compliance Summary
+        if: always()
         run: |
-          echo 'AI-generated or assisted code detected. Review logs.' > AI_DISCLOSURE.md
-          echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> AI_DISCLOSURE.md
-          echo "Compliance: EU AI Act Art.50" >> AI_DISCLOSURE.md
-          echo "" >> AI_DISCLOSURE.md
-          echo "## AI-Assisted Files" >> AI_DISCLOSURE.md
-          # Añade metadata (C2PA-like) a archivos clave
-          for file in $(git ls-files '*.py' '*.js' '*.yaml' '*.yml'); do
-            echo "- $file" >> AI_DISCLOSURE.md
-            echo "# AI-assisted file (EU AI Act Art.50) - Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$file".ai-meta
-          done
+          echo "## 🤖 AI Compliance Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Date**: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_STEP_SUMMARY
+          echo "**Event**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Scans Executed" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ ScanCode (Licenses & Copyright)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ OSS Review Toolkit (ORT)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ TruffleHog (Secrets Detection)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "ℹ️ AI Disclosure will be updated by dedicated workflow" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "See artifacts for detailed reports." >> $GITHUB_STEP_SUMMARY
         shell: bash
-
-      - name: Commit Disclosure if needed
-        if: github.event_name == 'push'
-        run: |
-          git config user.name "Compliance Bot"
-          git config user.email "bot@github.com"
-          git add . || true
-          git commit -m "EU AI Act: Add disclosure metadata [skip ci]" || echo "No changes to commit"
-          git push || echo "Push failed - may need repository permissions"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

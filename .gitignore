@@ -145,3 +145,11 @@ vite.config.ts.timestamp-*
 
 .scanoss/
 .tmp/
+
+# AI compliance metadata (should not be committed)
+*.ai-meta
+
+# Compliance scan outputs (uploaded as artifacts)
+scancode-outputs/
+ort-result/
+trufflehog-report.json
