@@ -1,0 +1,61 @@
+{
+  "detectors": [
+    {
+      "name": "GitHub",
+      "keywords": ["github", "gh", "token"]
+    },
+    {
+      "name": "AWS",
+      "keywords": ["aws", "amazon", "s3"]
+    },
+    {
+      "name": "Slack",
+      "keywords": ["slack", "webhook"]
+    },
+    {
+      "name": "GoogleAPIKey",
+      "keywords": ["google", "gcp", "api"]
+    },
+    {
+      "name": "NPM",
+      "keywords": ["npm", "npmrc"]
+    },
+    {
+      "name": "Docker",
+      "keywords": ["docker", "registry"]
+    },
+    {
+      "name": "PrivateKey",
+      "keywords": ["BEGIN", "PRIVATE KEY"]
+    }
+  ],
+  "exclude": {
+    "paths": [
+      "**/node_modules/**",
+      "**/vendor/**",
+      "**/*.lock",
+      "**/package-lock.json",
+      "**/yarn.lock",
+      "**/.git/**",
+      "**/test/**",
+      "**/tests/**",
+      "**/__tests__/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/*.min.js",
+      "**/*.map",
+      "**/coverage/**"
+    ],
+    "patterns": ["test.*", "mock.*", "fixture.*", "example.*"]
+  },
+  "allow": {
+    "paths": [],
+    "patterns": []
+  },
+  "verified": true,
+  "entropy": {
+    "enabled": true,
+    "threshold": 3.5
+  },
+  "maxDepth": 50
+}
