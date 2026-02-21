@@ -151,5 +151,10 @@ vite.config.ts.timestamp-*
 
 # Compliance scan outputs (uploaded as artifacts)
 scancode-outputs/
+scancode-results/
 ort-result/
+ort-results/
+.ort/
 trufflehog-report.json
+*scancode*.json
+*ort*.json
