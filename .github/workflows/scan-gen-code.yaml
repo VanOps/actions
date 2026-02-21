@@ -38,12 +38,11 @@ jobs:
       #   continue-on-error: false
 
       # Secrets scan con TruffleHog
-      # Custom config: .trufflehog-config.json (opcional)
       - name: TruffleHog Secrets Scan
         uses: trufflesecurity/trufflehog@v3.63.5
         with:
           path: ./
-          extra_args: --only-verified --entropy --config .trufflehog-config.json
+          extra_args: --only-verified
         continue-on-error: false
 
       # Upload reports para revisión
