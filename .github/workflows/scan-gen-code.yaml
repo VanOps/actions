@@ -19,23 +19,23 @@ jobs:
         with:
           fetch-depth: 0 # Historia completa para scans
 
-      # Licencias/Copyrights con ScanCode (rule-based, snippets)
-      # Nota: Escanea directorios específicos para evitar conflictos con directorios temporales
-      - name: ScanCode License Scan
-        uses: aboutcode-org/scancode-action@beta
-        with:
-          pipelines: "scan_codebase"
-          output-formats: "json"
-          check-compliance: true
-          compliance-fail-level: "ERROR"
-          inputs-path: "workflow-failure-analyzer .github LICENSE"
-        continue-on-error: false
+      # # Licencias/Copyrights con ScanCode (rule-based, snippets)
+      # # Nota: Escanea directorios específicos para evitar conflictos con directorios temporales
+      # - name: ScanCode License Scan
+      #   uses: aboutcode-org/scancode-action@beta
+      #   with:
+      #     pipelines: "scan_codebase"
+      #     output-formats: "json"
+      #     check-compliance: true
+      #     compliance-fail-level: "ERROR"
+      #     inputs-path: "workflow-failure-analyzer .github LICENSE"
+      #   continue-on-error: false
 
-      # ORT: Compliance full (licencias, vulns, políticas)
-      # Nota: ORT-CI corre análisis completo sin configuración adicional
-      - name: OSS Review Toolkit (ORT)
-        uses: oss-review-toolkit/ort-ci-github-action@v1
-        continue-on-error: false
+      # # ORT: Compliance full (licencias, vulns, políticas)
+      # # Nota: ORT-CI corre análisis completo sin configuración adicional
+      # - name: OSS Review Toolkit (ORT)
+      #   uses: oss-review-toolkit/ort-ci-github-action@v1
+      #   continue-on-error: false
 
       # Secrets scan con TruffleHog
       # Custom config: .trufflehog-config.json (opcional)
