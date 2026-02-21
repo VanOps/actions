@@ -16,6 +16,7 @@ jobs:
           fetch-depth: 0 # Historia completa para scans
 
       # Licencias/Copyrights con ScanCode (rule-based, snippets)
+      # Nota: Escanea directorios específicos para evitar conflictos con directorios temporales
       - name: ScanCode License Scan
         uses: aboutcode-org/scancode-action@beta
         with:
@@ -23,7 +24,7 @@ jobs:
           output-formats: "json,spdx,cyclonedx"
           check-compliance: true
           compliance-fail-level: "ERROR"
-          inputs-path: "."
+          inputs-path: "workflow-failure-analyzer .github LICENSE"
         continue-on-error: false
 
       # ORT: Compliance full (licencias, vulns, políticas)
