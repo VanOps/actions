@@ -1,6 +1,6 @@
 # AI Workflow Failure Analyzer
 
-GitHub Action que analiza automáticamente workflows fallidos usando IA (MCP Server / Copilot fallback) y sugiere soluciones.
+GitHub Action que analiza automáticamente workflows fallidos  usando IA (MCP Server / Copilot fallback) y sugiere soluciones.
 
 ## Flujo
 
